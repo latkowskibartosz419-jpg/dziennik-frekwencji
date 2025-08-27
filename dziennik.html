@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Dziennik frekwencji</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  table { border-collapse: collapse; width: 100%; max-width: 900px; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+  th { background-color: #f0f0f0; }
+  .O { background-color: #b2f0b2; } /* zielone dla obecnych */
+  .N { background-color: #f0b2b2; } /* czerwone dla nieobecnych */
+  button { margin: 10px 0; padding: 5px 10px; }
+</style>
+</head>
+<body>
+
+<h2>Dziennik frekwencji</h2>
+<p>Kliknij w komórkę, aby zmienić obecność. Możesz dodawać nowe spotkania.</p>
+<button id="addMeeting">Dodaj spotkanie</button>
+
+<table id="attendance">
+  <tr>
+    <th>Imię/Nazwisko</th>
+    <th>Frekwencja %</th>
+  </tr>
+</table>
+
+<script>
+const table = document.getElementById('attendance');
+const numPeople = 40;
+
+// Dodaj osoby
+for(let i=1; i<=numPeople; i++){
+  const row = table.insertRow();
+  const nameCell = row.insertCell();
+  nameCell.textContent = 'Osoba ' + i;
+
+  const percentCell = row.insertCell();
+  percentCell.textContent = '0%';
+}
+
+// Funkcja aktualizująca frekwencję
+function updateAttendance(row){
+  let total = 0;
+  let present = 0;
+  for(let i=2; i<row.cells.length; i++){
+    const val = row.cells[i].textContent;
+    if(val==='O' || val==='N'){
+      total++;
+      if(val==='O') present++;
+    }
+  }
+  const percent = total ? Math.round(present/total*100) : 0;
+  row.cells[1].textContent = percent + '%';
+}
+
+// Dodawanie nowego spotkania
+document.getElementById('addMeeting').addEventListener('click', () => {
+  const headerRow = table.rows[0];
+  const newIndex = headerRow.cells.length;
+  const th = document.createElement('th');
+  th.textContent = 'Spotkanie ' + (newIndex - 1);
+  headerRow.insertBefore(th, headerRow.cells[headerRow.cells.length-1]);
+
+  for(let i=1; i<table.rows.length; i++){
+    const row = table.rows[i];
+    const cell = row.insertCell(row.cells.length-1);
+    cell.textContent = '';
+    cell.addEventListener('click', () => {
+      if(cell.textContent === '' || cell.textContent === 'N'){
+        cell.textContent = 'O';
+        cell.className = 'O';
+      } else {
+        cell.textContent = 'N';
+        cell.className = 'N';
+      }
+      updateAttendance(row);
+    });
+  }
+});
+</script>
+
+</body>
+</html>
+
